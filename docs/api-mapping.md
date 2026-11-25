@@ -3,8 +3,8 @@
 本文档对应设计文档《智能选片系统前端设计文档》第六章「前后端接口设计」，说明**前端每个 service 方法对应哪个接口、传什么、期望返回什么**。
 
 - 全部接口以 `/api` 为前缀（`VITE_API_BASE`），本地开发由 `vite.config.ts` 代理到 `http://127.0.0.1:8000`
-- 字段命名统一 **snake_case**，与 `src/types/*` 完全一致，后端返回结构直接落到页面，前端不做二次计算
-- 切换方式：`.env` 中 `VITE_USE_MOCK=false` → `src/services/request.ts` 从 Mock 分发切到 axios 真实请求，**页面代码零改动**
+- 字段命名统一 **snake_case**，与 `frontend/src/types/*` 完全一致，后端返回结构直接落到页面，前端不做二次计算
+- 切换方式：`frontend/.env` 中 `VITE_USE_MOCK=false` → `frontend/src/services/request.ts` 从 Mock 分发切到 axios 真实请求，**页面代码零改动**
 
 ## 1. 接口总览
 

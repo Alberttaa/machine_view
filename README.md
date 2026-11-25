@@ -1,4 +1,4 @@
-# 智能选片系统 · 前端
+# 智能选片系统
 
 机器视觉课程项目「智能选片系统（Smart Photo Selector）」的前端实现，按《智能选片系统前端设计文档 V1.0》落地。
 
@@ -6,10 +6,13 @@
 
 > 当前默认使用 **Mock 数据**（`VITE_USE_MOCK=true`），无需后端即可完整演示全流程；页面右上角始终显示「演示数据」标识，避免把模拟数据当成算法结果。
 
+完整目录和 A、B、C 分工见 [仓库目录与责任分工](docs/team_division.md)。
+
 ## 快速开始
 
 ```bash
-npm install
+cd frontend
+npm ci
 npm run dev      # http://localhost:5174
 ```
 
@@ -35,12 +38,8 @@ React 18 + TypeScript + Vite 5 + React Router 6 + Ant Design 5 + Zustand + EChar
 ## 目录结构
 
 ```
-smart-selector/
+frontend/
 ├─ public/images/                 示例照片（8 张原图 + 1 张裁剪候选）
-├─ docs/
-│  ├─ api-mapping.md              前后端接口对接说明（逐接口字段）
-│  ├─ test-record.md              主要功能测试记录
-│  └─ screenshots/                核心页面截图
 ├─ src/
 │  ├─ components/
 │  │  ├─ AppHeader/               顶部状态栏（页面名 / 数据模式 / 用户）
@@ -75,14 +74,13 @@ smart-selector/
 │  ├─ stores/userStore.ts         历史 / 偏好 / 评估
 │  ├─ types/                      与后端共享的数据结构（snake_case）
 │  └─ utils/                      图片校验、格式化、状态文案
-├─ .env.example
 └─ vite.config.ts
 ```
 
 ## 接入真实后端
 
 1. 后端按 `docs/api-mapping.md` 实现 `/api/tasks` 等 8 个接口
-2. 复制 `.env.example` 为 `.env`，设置 `VITE_USE_MOCK=false`，必要时改 `VITE_API_BASE`
+2. 将仓库根目录的 `.env.example` 复制为 `frontend/.env`，设置 `VITE_USE_MOCK=false`，必要时改 `VITE_API_BASE`
 3. 本地开发时 `vite.config.ts` 已把 `/api` 代理到 `http://127.0.0.1:8000`
 4. 若后端字段不同，**只改 `src/services/*` 与 `src/types/*`**，页面无需改动
 

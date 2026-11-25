@@ -18,3 +18,24 @@ Thumbs.db
 # 日志
 *.log
 npm-debug.log*
+
+# Python
+__pycache__/
+.pytest_cache/
+.venv/
+
+# 数据集、模型权重与运行产物
+/data/raw/*
+!/data/raw/.gitkeep
+/data/processed/*
+!/data/processed/.gitkeep
+/data/candidates/*
+!/data/candidates/.gitkeep
+/models/checkpoints/*
+!/models/checkpoints/.gitkeep
+/experiments/results/*
+!/experiments/results/.gitkeep
+/storage/*/*
+!/storage/*/.gitkeep
+/deployment/build/*
+!/deployment/build/.gitkeep
