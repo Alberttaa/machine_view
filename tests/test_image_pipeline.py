@@ -4,6 +4,7 @@ from algorithms.cropping.pipeline import generate_candidates
 from pathlib import Path
 from PIL import Image
 from algorithms.image_pipeline import prepare_candidates
+from algorithms.quality.pipeline import check_image_quality
 
 
 class TestImagePipeline(unittest.TestCase):
@@ -22,6 +23,20 @@ class TestImagePipeline(unittest.TestCase):
         source_ids = [x["image_id"] for x in r["images"]]
         for c in r["candidates"]:
             self.assertIn(c["source_image_id"], source_ids)
+
+    def test_quality_alignment(self):
+        paths = [str(self.tmp / f"t{i}.jpg") for i in range(3)]
+        imgs = preprocess_images(paths, "tests/data/working")
+        cands = generate_candidates(imgs, "tests/data/candidates")
+        q = check_image_quality(cands)
+        self.assertEqual(len(q), len(cands))
+        self.assertEqual([r["candidate_id"] for r in q],
+                         [c["candidate_id"] for c in cands])
+        for r in q:
+            self.assertIn("is_valid", r)
+            self.assertIn("defects", r)
+            self.assertIn("quality_scores", r)
+
 
     def test_crop_mapping(self):
         paths = [str(self.tmp / f"t{i}.jpg") for i in range(3)]
