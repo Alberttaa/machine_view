@@ -1,4 +1,6 @@
 import unittest
+from algorithms.preprocessing.pipeline import preprocess_images
+from algorithms.cropping.pipeline import generate_candidates
 from pathlib import Path
 from PIL import Image
 from algorithms.image_pipeline import prepare_candidates
@@ -20,6 +22,20 @@ class TestImagePipeline(unittest.TestCase):
         source_ids = [x["image_id"] for x in r["images"]]
         for c in r["candidates"]:
             self.assertIn(c["source_image_id"], source_ids)
+
+    def test_crop_mapping(self):
+        paths = [str(self.tmp / f"t{i}.jpg") for i in range(3)]
+        imgs = preprocess_images(paths, "tests/data/working")
+        off = generate_candidates(imgs, "tests/data/candidates")
+        on = generate_candidates(imgs, "tests/data/candidates", {"smart_crop": True})
+        self.assertEqual(len(off), 3)
+        self.assertEqual(len(on), 6)
+        for c in on:
+            self.assertIn(c["source_image_id"], [x["image_id"] for x in imgs])
+            if c["candidate_type"] == "crop":
+                self.assertEqual(len(c["crop_box"]), 4)
+                self.assertTrue(all(0 <= v <= 1 for v in c["crop_box"]))
+
 
     def test_empty(self):
         r = prepare_candidates([], "tests/data/working")
