@@ -39,3 +39,4 @@ __pycache__/
 !/storage/*/.gitkeep
 /deployment/build/*
 !/deployment/build/.gitkeep
+sample.jpg
