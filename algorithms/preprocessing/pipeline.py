@@ -16,26 +16,41 @@ def read_image_info(image_path):
 
 
 def preprocess_images(image_paths, output_dir="tests/data/working"):
-    """建立 image_id，生成工作副本，并标记重复图（不丢弃）。"""
+    """建立 image_id，生成工作副本，标记重复图；损坏图跳过但保留记录。"""
     results = []
     seen_hashes = {}
     for image_path in image_paths:
-        info = read_image_info(image_path)
-        digest = image_dhash(image_path)
-        working_path = create_working_copy(image_path, output_dir)
-        is_duplicate = digest in seen_hashes
-        if not is_duplicate:
-            seen_hashes[digest] = Path(image_path).stem
-        results.append({
-            "image_id": Path(image_path).stem,
-            "filename": info["filename"],
-            "image_path": str(image_path),
-            "working_path": working_path,
-            "format": info["format"],
-            "width": info["width"],
-            "height": info["height"],
-            "is_duplicate": is_duplicate,
-        })
+        path = Path(image_path)
+        try:
+            info = read_image_info(image_path)
+            digest = image_dhash(image_path)
+            working_path = create_working_copy(image_path, output_dir)
+            is_duplicate = digest in seen_hashes
+            if not is_duplicate:
+                seen_hashes[digest] = path.stem
+            results.append({
+                "image_id": path.stem,
+                "filename": path.name,
+                "image_path": str(image_path),
+                "working_path": working_path,
+                "format": info["format"],
+                "width": info["width"],
+                "height": info["height"],
+                "is_duplicate": is_duplicate,
+                "defects": [],
+            })
+        except Exception:
+            results.append({
+                "image_id": path.stem,
+                "filename": path.name,
+                "image_path": str(image_path),
+                "working_path": None,
+                "format": None,
+                "width": None,
+                "height": None,
+                "is_duplicate": False,
+                "defects": ["unreadable"],
+            })
     return results
 
 
