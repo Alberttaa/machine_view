@@ -31,7 +31,6 @@ def _load_model(checkpoint_dir):
     try:
         import clip
         import torch
-        from PIL import Image, ImageOps
     except ImportError as error:
         raise RuntimeError("Install the aesthetic model dependencies in models/README.md.") from error
 
@@ -45,15 +44,35 @@ def _load_model(checkpoint_dir):
     ))
     head.eval()
 
-    def predict(image_path):
-        with Image.open(image_path) as image:
-            pixels = preprocess(ImageOps.exif_transpose(image).convert("RGB")).unsqueeze(0)
+    return _AestheticPredictor(vision, preprocess, head)
+
+
+class _AestheticPredictor:
+    def __init__(self, vision, preprocess, head):
+        self.vision = vision
+        self.preprocess = preprocess
+        self.head = head
+
+    def encode(self, image_paths):
+        """Encode a nonempty batch as normalized CLIP image embeddings."""
+        import torch
+        from PIL import Image, ImageOps
+
+        pixels = []
+        for image_path in image_paths:
+            with Image.open(image_path) as image:
+                pixels.append(self.preprocess(ImageOps.exif_transpose(image).convert("RGB")))
         with torch.inference_mode():
-            embedding = torch.nn.functional.normalize(vision(pixels).float(), dim=-1)
-            raw_score = head(embedding).item()
+            return torch.nn.functional.normalize(self.vision(torch.stack(pixels)).float(), dim=-1)
 
-        if not isfinite(raw_score):
-            raise ValueError(f"Invalid LAION aesthetic score for {image_path}")
-        return {"overall": min(1.0, max(0.0, raw_score / 10.0))}
+    def score_embeddings(self, embeddings):
+        import torch
 
-    return predict
+        with torch.inference_mode():
+            raw_scores = self.head(embeddings).flatten()
+        if not all(isfinite(score) for score in raw_scores.tolist()):
+            raise ValueError("LAION produced a non-finite aesthetic score")
+        return (raw_scores / 10.0).clamp(0.0, 1.0)
+
+    def __call__(self, image_path):
+        return {"overall": self.score_embeddings(self.encode([image_path])).item()}
